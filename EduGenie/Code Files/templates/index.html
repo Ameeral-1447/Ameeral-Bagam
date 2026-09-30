@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EduGenie</title>
+    <style>
+    body { font-family: sans-serif; text-align: center; padding: 30px; background: #FFF8F6; }
+    .tab { padding: 10px 20px; margin: 5px; border-radius: 20px; border: 1px solid #800020; color: #800020; background: white; cursor: pointer; font-weight: bold; }
+    .active { background: #800020; color: white; }
+    #inputBox { width: 50%; padding: 12px; border: 2px solid #800020; border-radius: 8px; }
+    #output { margin-top: 20px; text-align: left; white-space: pre-wrap; border: 1px solid #800020; padding: 15px; border-radius: 10px; min-height: 100px; background: white; }
+    h1 { color: #800020; }
+</style>
+</head>
+<body>
+    <h1>🎓 EduGenie</h1>
+    <div>
+        <button class="tab active" onclick="setMode('explain')">Explain</button>
+        <button class="tab" onclick="setMode('qna')">Q&A</button>
+        <button class="tab" onclick="setMode('quiz')">Quiz</button>
+        <button class="tab" onclick="setMode('summary')">Summary</button>
+        <button class="tab" onclick="setMode('learning_path')">Learning Path</button>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <input type="text" id="inputBox" placeholder="Enter any topic... e.g. Photosynthesis, Java">
+        <select id="level"><option>beginner</option><option>intermediate</option><option>advanced</option></select>
+        <button onclick="generate()" style="background:#800020; color:white; padding: 12px 20px; border-radius: 10px; border: none;font-weight:bold;">✨ Generate</button>
+    </div>
+
+    <div id="output">Output inga varum...</div>
+
+<script>
+    let currentMode = 'explain';
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        // placeholder maathurom
+        if(mode == 'explain') document.getElementById('inputBox').placeholder = "Enter any topic... e.g. Photosynthesis";
+        if(mode == 'qna') document.getElementById('inputBox').placeholder = "Ask any question... e.g. What is black hole?";
+        if(mode == 'quiz') document.getElementById('inputBox').placeholder = "Enter topic for Quiz... e.g. Python";
+        if(mode == 'summary') document.getElementById('inputBox').placeholder = "Paste long text to summarize...";
+        if(mode == 'learning_path') document.getElementById('inputBox').placeholder = "Enter what you want to learn... e.g. Java";
+    }
+
+    async function generate() {
+        let input = document.getElementById('inputBox').value;
+        if(!input) return alert("Input kudu da!");
+        document.getElementById('output').innerText = "Loading... ⏳";
+
+        let url = '/' + currentMode;
+        let bodyData = {};
+        if(currentMode == 'summary') bodyData = {text: input};
+        else if(currentMode == 'learning_path' || currentMode == 'quiz') bodyData = {topic: input};
+        else bodyData = {question: input};
+
+        let res = await fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(bodyData)
+        });
+        let data = await res.json();
+        document.getElementById('output').innerText = data.answer;
+    }
+</script>
+</body>
+</html>
